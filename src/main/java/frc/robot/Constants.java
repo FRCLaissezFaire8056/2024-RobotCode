@@ -174,6 +174,7 @@ public final class Constants {
     public static final double kElevatorP = 1;
     public static final double kElevatorI = 0;
     public static final double kElevatorD = 0;
+    public static final double kElevatorSlewRate = 0;
   }
   public static final class IntakeConstants {
     public static final int kIntakeTakerCanID = 17;
