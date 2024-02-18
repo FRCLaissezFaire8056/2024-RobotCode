@@ -12,8 +12,8 @@ import frc.robot.Constants.ElevatorConstants;
 public class ElevatorSubsystem extends SubsystemBase{
     private final CANSparkMax mElevatorMaster = new CANSparkMax(ElevatorConstants.kMasterCanID, MotorType.kBrushless);
     private final CANSparkMax mElevatorFollower = new CANSparkMax(ElevatorConstants.kFollowerCanID, MotorType.kBrushless);
-    private final PIDController pidController = new PIDController(1, 0, 0);
-    private final SlewRateLimiter filter = new SlewRateLimiter(0.5);
+    private final PIDController pidController = new PIDController(ElevatorConstants.kElevatorP, ElevatorConstants.kElevatorI, ElevatorConstants.kElevatorD);
+    private final SlewRateLimiter filter = new SlewRateLimiter(ElevatorConstants.kElevatorSlaveRate);
     private final RelativeEncoder masterEncoder;
     private final Dashboard dashboard;
 
