@@ -13,7 +13,7 @@ public class ElevatorSubsystem extends SubsystemBase{
     private final CANSparkMax mElevatorMaster = new CANSparkMax(ElevatorConstants.kMasterCanID, MotorType.kBrushless);
     private final CANSparkMax mElevatorFollower = new CANSparkMax(ElevatorConstants.kFollowerCanID, MotorType.kBrushless);
     private final PIDController pidController = new PIDController(ElevatorConstants.kElevatorP, ElevatorConstants.kElevatorI, ElevatorConstants.kElevatorD);
-    private final SlewRateLimiter filter = new SlewRateLimiter(ElevatorConstants.kElevatorSlaveRate);
+    private final SlewRateLimiter filter = new SlewRateLimiter(ElevatorConstants.kElevatorSlewRate);
     private final RelativeEncoder masterEncoder;
     private final Dashboard dashboard;
 
