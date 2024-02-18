@@ -171,6 +171,9 @@ public final class Constants {
   public static final class ElevatorConstants {
     public static final int kMasterCanID = 31;
     public static final int kFollowerCanID = 32;
+    public static final double kElevatorP = 1;
+    public static final double kElevatorI = 0;
+    public static final double kElevatorD = 0;
   }
   public static final class IntakeConstants {
     public static final int kIntakeTakerCanID = 17;
