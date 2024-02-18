@@ -32,7 +32,7 @@ public class TurnToAngleCmd extends Command{
     
       double target_angle = visionSubsystem.getHorizontal();
       double current_angle = driveSubsystem.getHeading();
-      double rotation_speed = pidController.calculate(current_angle, current_angle + target_angle + 230);
+      double rotation_speed = pidController.calculate(current_angle, current_angle + target_angle);
       
       driveSubsystem.drive(0, 0, rotation_speed, true, true);
     }

@@ -16,19 +16,30 @@ public class IntakeSubsystem extends SubsystemBase{
     private Dashboard dashboard;
     //private PhotonCamera photonCamera;
 
-    private CANSparkMax m1 = new CANSparkMax(IntakeConstants.kIntakeMotor1CanID, MotorType.kBrushless);
-
-    private CANSparkMax m2 = new CANSparkMax(IntakeConstants.kIntakeMotor2CanID, MotorType.kBrushless);
-
+    private CANSparkMax mIntakeTaker = new CANSparkMax(IntakeConstants.kIntakeTakerCanID, MotorType.kBrushless);
+    private CANSparkMax mIntakeUpDown = new CANSparkMax(IntakeConstants.kIntakeUpDownCanID, MotorType.kBrushless);
+    private RelativeEncoder eIntakeUpDown = mIntakeUpDown.getEncoder();
     public IntakeSubsystem(Dashboard dashboard){
         //this.photonCamera = photonCamera;
         this.dashboard = dashboard;
     }
-
+    /*
+     * (-) yon yukari
+     * (+) yon asagi      
+     */
     public void IntakeMove(double speed){
-        m1.set(speed);
+        mIntakeTaker.set(speed);
     }
-      public void IntakeTake(double speed){
-        m2.set(speed);
+    /*
+     * (+) yon = in 
+     * (-) yon = out
+     */ 
+    public void IntakeTake(double speed){
+        mIntakeUpDown.set(speed);
+    }
+
+    public RelativeEncoder giveUpDownEncoder(){
+        return eIntakeUpDown;
     }
 }
+//roller , asa yukari + otonom

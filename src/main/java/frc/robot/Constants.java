@@ -165,17 +165,15 @@ public final class Constants {
     public static final int ShooterMasterCanID = 36;
     public static final int ShooterFollowerCanID = 26;
     public static final int ShooterNeo550CanID = 48;
+    public static final int WristCanID = 16;
     public static final double defaultSpeed = 1.0;
   }
   public static final class ElevatorConstants {
     public static final int kMasterCanID = 31;
     public static final int kFollowerCanID = 32;
   }
-  public static final class ElbowConstants {
-    public static final int kElbowCanID = 16;
-  }
   public static final class IntakeConstants {
-    public static final int kIntakeMotor1CanID = 17;
-    public static final int kIntakeMotor2CanID = 18;
+    public static final int kIntakeTakerCanID = 17;
+    public static final int kIntakeUpDownCanID = 18;
   }
 }
