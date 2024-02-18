@@ -37,7 +37,7 @@ public class ElevatorSubsystem extends SubsystemBase{
         mElevatorFollower.set(-speed);
     }
     public void move(double speed){
-        speed = fil
+        speed = filter.calculate(speed);
         mElevatorMaster.set(speed);
         mElevatorFollower.set(-speed);
     }
