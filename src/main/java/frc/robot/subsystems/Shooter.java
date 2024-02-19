@@ -36,10 +36,12 @@ public class Shooter extends SubsystemBase{
     public void shoot(){
         mMasterMotor.set(ShooterConstants.defaultSpeed);
         mFollowerMotor.set(ShooterConstants.defaultSpeed);
+        mGrabber.set(ShooterConstants.defaultSpeed);
     }
     public void stop(){
         mMasterMotor.set(0);
         mFollowerMotor.set(0);
+        mGrabber.set(0);
     }
     public void grab(double speed){
         mGrabber.set(speed);
