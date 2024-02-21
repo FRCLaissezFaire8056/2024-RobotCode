@@ -16,12 +16,11 @@ import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.PS4Controller.Button;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
+import edu.wpi.first.wpilibj.SPI.Port;
 import frc.robot.Constants.AutoConstants;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.OIConstants;
-import frc.robot.commands.TurnToAngleCmd;
 import frc.robot.subsystems.Dashboard;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.Limelight;
@@ -31,17 +30,19 @@ import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SwerveControllerCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import java.util.List;
-import java.util.concurrent.PriorityBlockingQueue;
 
-import com.revrobotics.CANSparkMax;
-import com.revrobotics.CANSparkLowLevel.MotorType;
-
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj.shuffleboard.*;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import com.kauailabs.navx.frc.AHRS;
-import edu.wpi.first.wpilibj.SPI;
+
+
+//Commands
+import frc.robot.commands.ShooterCommands.ShooterManualCmd;
+import frc.robot.commands.TurnToAngleCmd;
+import frc.robot.commands.IntakeCmd;
+import frc.robot.commands.IntakeCommands.IntakeManualCmd;
+
+
 /*
  * This class is where the bulk of the robot should be declared.  Since Command-based is a
  * "declarative" paradigm, very little robot logic should actually be handle    d in the {@link Robot}
@@ -53,26 +54,35 @@ public class RobotContainer {
 
   private final PowerDistribution pdp = new PowerDistribution(1, ModuleType.kCTRE);
 
-  private final Dashboard dashboard = new Dashboard(pdp);
 
   private final DriveSubsystem m_robotDrive = new DriveSubsystem();
-  private final Shooter shooter = new Shooter(dashboard);
-  private final ElevatorSubsystem elevatorSubsystem = new ElevatorSubsystem(dashboard);
-  private final IntakeSubsystem intakeSubsystem = new IntakeSubsystem(dashboard);
-  
+  private final Dashboard dashboard = new Dashboard(pdp, m_robotDrive.m_gyro);
+  private final Shooter shooter = new Shooter();
+  private final ElevatorSubsystem elevatorSubsystem = new ElevatorSubsystem();
+  private final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
+  private final Limelight limelight = new Limelight(dashboard);
+
   // The driver's controller
   //XboxController m_driverController = new XboxController(OIConstants.kDriverControllerPort);
   Joystick js =  new Joystick(0);
+  Joystick js2 = new Joystick(1);
   Robot hey = new Robot();
-  /**
+  /**  
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
   public RobotContainer() {
     // Configure the button bindings
     configureButtonBindings();
-    //PutOnDashboard();
+    
+    intakeSubsystem.setDefaultCommand(new RunCommand(
+        () -> intakeSubsystem.driveWithJoystick(js.getRawAxis(1)), intakeSubsystem)); // ornek joystick axis atamasi
+    elevatorSubsystem.setDefaultCommand(new RunCommand(() -> elevatorSubsystem.driveWithJoystick(js.getRawAxis(2)), elevatorSubsystem));
+    shooter.setDefaultCommand(new RunCommand(() -> shooter.driveWithJoystick(js.getRawAxis(3)), shooter));
+
+    
+
     // Configure default commands
-    m_robotDrive.setDefaultCommand(
+    m_robotDrive.setDefaultCommand(                                             //!!! PORT 1 !!!
         // The left stick controls translation of the robot.
         // Turning is controlled by the X axis of the right stick.
         new RunCommand(
@@ -82,9 +92,9 @@ public class RobotContainer {
                 //-MathUtil.applyDeadband(m_driverController.getRightX()/4, OIConstants.kDriveDeadband),
 
                 //MathUtil.applyDeadband(js.getRawAxis(0), OIConstants.kDriveDeadband)/20,
-                -MathUtil.applyDeadband(js.getRawAxis(1)/4, OIConstants.kDriveDeadband),
-                -MathUtil.applyDeadband(js.getRawAxis(0)/4, OIConstants.kDriveDeadband),
-                -MathUtil.applyDeadband(js.getRawAxis(3)/4, OIConstants.kDriveDeadband),
+                -MathUtil.applyDeadband(js2.getRawAxis(1)/4, OIConstants.kDriveDeadband),
+                -MathUtil.applyDeadband(js2.getRawAxis(0)/4, OIConstants.kDriveDeadband),
+                -MathUtil.applyDeadband(js2.getRawAxis(3)/4, OIConstants.kDriveDeadband),
                 
 
                 true, true),
@@ -126,16 +136,6 @@ public class RobotContainer {
     
 
         //.whileTrue(new TurnToAngleCmd(m_robotDrive, m_Camera));
-    new JoystickButton(js, 5)
-        .whileTrue(
-            new RunCommand(
-                () -> shooter.grab(1.0), shooter)
-        )
-        .whileFalse(
-            new RunCommand(
-                () -> shooter.grab(0), shooter)
-        );
-    
 
 
     new JoystickButton(js, 6)
@@ -146,24 +146,6 @@ public class RobotContainer {
             () -> shooter.stop(),
             shooter));
     
-    new JoystickButton(js, 10)
-        .whileTrue(new RunCommand(
-            () -> elevatorSubsystem.testStart(js.getRawAxis(5)/1.5) , 
-            elevatorSubsystem));
-    
-    new JoystickButton(js, 2).whileTrue(new RunCommand(
-        () -> intakeSubsystem.IntakeMove(js.getRawAxis(5))
-        ,intakeSubsystem));
-    new JoystickButton(js, 4)
-        .whileTrue(new RunCommand(
-            () -> intakeSubsystem.IntakeTake(0.5), intakeSubsystem));
-    
-    new JoystickButton(js, 3)
-        .whileTrue(
-            new RunCommand(
-                () -> intakeSubsystem.IntakeTake(-0.5), intakeSubsystem
-            )
-        );
 
   }
 

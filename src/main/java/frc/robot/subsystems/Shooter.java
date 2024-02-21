@@ -1,8 +1,5 @@
 package frc.robot.subsystems;
-import com.kauailabs.navx.frc.AHRS;
-import edu.wpi.first.wpilibj.SPI;
 import frc.robot.Constants.ShooterConstants;
-import frc.utils.SwerveUtils;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
@@ -16,13 +13,13 @@ public class Shooter extends SubsystemBase{
     private final CANSparkMax wristSparkMax = new CANSparkMax(ShooterConstants.WristCanID, MotorType.kBrushless);
     private final CANSparkMax mGrabber = new CANSparkMax(ShooterConstants.ShooterNeo550CanID, MotorType.kBrushless);
     private final RelativeEncoder eWrist = wristSparkMax.getEncoder();
-    private Dashboard dashboard;
-    public Shooter(Dashboard dashboard){
+
+    
+
+    public Shooter(){
         wristSparkMax.setIdleMode(IdleMode.kBrake);
         mMasterMotor.setInverted(false);
         mFollowerMotor.setInverted(true);
-        this.dashboard = dashboard;
-
     }
     
     public void wristMove(double speed){
@@ -46,4 +43,20 @@ public class Shooter extends SubsystemBase{
     public void grab(double speed){
         mGrabber.set(speed);
     }
+
+    public double returnValueForEntry(){
+        return eWrist.getPosition();
+    }
+
+
+    public void driveWithJoystick(double joystickInput){
+        wristMove(joystickInput);
+    }
+
+
+    @Override
+    public void periodic() {
+        super.periodic();
+    }
+
 }

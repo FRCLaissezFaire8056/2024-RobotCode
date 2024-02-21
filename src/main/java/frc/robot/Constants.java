@@ -3,15 +3,10 @@
 // the WPILib BSD license file in the root directory of this project.
 
 package frc.robot;
-
-import java.util.ArrayList;
-
 import com.revrobotics.CANSparkBase.IdleMode;
 
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
-import edu.wpi.first.math.spline.CubicHermiteSpline;
-import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 
@@ -179,5 +174,6 @@ public final class Constants {
   public static final class IntakeConstants {
     public static final int kIntakeTakerCanID = 17;
     public static final int kIntakeUpDownCanID = 18;
+    public static final int kIntakeSlewRate = 0; 
   }
 }

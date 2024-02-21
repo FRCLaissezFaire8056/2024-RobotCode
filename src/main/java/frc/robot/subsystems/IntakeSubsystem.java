@@ -1,27 +1,26 @@
 package frc.robot.subsystems;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.filter.SlewRateLimiter;
+
 //import org.photonvision.PhotonCamera;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
+import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
-
 import frc.robot.Constants.IntakeConstants;
-import frc.robot.subsystems.Dashboard;
-import frc.robot.subsystems.Limelight;
 
 public class IntakeSubsystem extends SubsystemBase{
-    private PIDController pidController1 = new PIDController(1, 0, 0);
-    private PIDController pidController2 = new PIDController(1, 0, 0);
-    private Dashboard dashboard;
+    private final PIDController pidController1 = new PIDController(1, 0, 0);
+    private final SlewRateLimiter filter = new SlewRateLimiter(IntakeConstants.kIntakeSlewRate);
     //private PhotonCamera photonCamera;
 
     private CANSparkMax mIntakeTaker = new CANSparkMax(IntakeConstants.kIntakeTakerCanID, MotorType.kBrushless);
     private CANSparkMax mIntakeUpDown = new CANSparkMax(IntakeConstants.kIntakeUpDownCanID, MotorType.kBrushless);
     private RelativeEncoder eIntakeUpDown = mIntakeUpDown.getEncoder();
-    public IntakeSubsystem(Dashboard dashboard){
+    public IntakeSubsystem(){
         //this.photonCamera = photonCamera;
-        this.dashboard = dashboard;
+        mIntakeUpDown.setIdleMode(IdleMode.kBrake);
     }
     /*
      * (-) yon yukari
@@ -40,6 +39,14 @@ public class IntakeSubsystem extends SubsystemBase{
 
     public RelativeEncoder giveUpDownEncoder(){
         return eIntakeUpDown;
+    }
+
+    public double returnValueForEntry(){
+        return eIntakeUpDown.getPosition();
+    }
+
+    public void driveWithJoystick(double joystick){
+        IntakeMove(joystick);
     }
 }
 //roller , asa yukari + otonom

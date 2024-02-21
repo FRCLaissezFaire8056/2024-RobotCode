@@ -15,13 +15,11 @@ public class ElevatorSubsystem extends SubsystemBase{
     private final PIDController pidController = new PIDController(ElevatorConstants.kElevatorP, ElevatorConstants.kElevatorI, ElevatorConstants.kElevatorD);
     private final SlewRateLimiter filter = new SlewRateLimiter(ElevatorConstants.kElevatorSlewRate);
     private final RelativeEncoder masterEncoder;
-    private final Dashboard dashboard;
 
-    public ElevatorSubsystem(Dashboard dashboard){
+    public ElevatorSubsystem(){
         mElevatorMaster.follow(mElevatorFollower);
         //pidController.enableContinuousInput(-180, 180);
         masterEncoder = mElevatorFollower.getEncoder();
-        this.dashboard = dashboard;
     }
 
 
@@ -40,6 +38,16 @@ public class ElevatorSubsystem extends SubsystemBase{
         speed = filter.calculate(speed);
         mElevatorMaster.set(speed);
         mElevatorFollower.set(-speed);
+    }
+
+
+
+    public void driveWithJoystick(double joystick){
+        move(joystick);
+    }
+
+    public double returnValueForEntry(){
+        return masterEncoder.getPosition();
     }
 
     @Override

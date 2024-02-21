@@ -45,7 +45,9 @@ public class IntakeCmd extends Command{
      *  shooterin her seyi donuyor
      *  bitti
      */
-    public void IntakeTake(){
+    @Override
+    public void execute(){
+        super.execute();
         //intake asagi indi calisiyor
         intakeSubsystem.IntakeTake(0.5);
         while(eIntake.getPosition() < dummyIntakeEncoderValueDown){intakeSubsystem.IntakeMove(IntakeSpeedDown);}
@@ -58,6 +60,9 @@ public class IntakeCmd extends Command{
          * 
          */
         //wrist geriye yanasti, intake yukari ve grab
+        intakeSubsystem.IntakeMove(0);
+
+
         while(eWrist.getPosition() < dummyWristEncoderValueDown){shooter.wristMove(wristSpeedDown);}
         shooter.wristMove(0);
         intakeSubsystem.IntakeMove(IntakeSpeedUp);
