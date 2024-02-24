@@ -157,23 +157,59 @@ public final class Constants {
 
   }
   public static final class ShooterConstants {
-    public static final int ShooterMasterCanID = 36;
-    public static final int ShooterFollowerCanID = 26;
-    public static final int ShooterNeo550CanID = 48;
-    public static final int WristCanID = 16;
-    public static final double defaultSpeed = 1.0;
+    public static final int kMasterCanId = 36;
+    public static final int kFollowerCanId = 26;
+    public static final int kGrabberCanId = 48;
+    public static final int kWristCanId = 16;
+
+    public static final double kDefaultSpeed = 1.0;
+    public static final double kGrabSpeed = 1.0;
+
+    public static final double kSlewLimit = 1.6;
+    public static final double kLimitUp = 7000;//MARK
+    public static final double kLimitDown = -7000;//MARK
+
+
+    public static final double kP = 0.0008;
+    public static final double kI = 0.000001;
+    public static final double kD = 0.000018;
+
+    public static final double kRad = 21.5;
+
   }
+  
   public static final class ElevatorConstants {
     public static final int kMasterCanID = 31;
     public static final int kFollowerCanID = 32;
-    public static final double kElevatorP = 1;
-    public static final double kElevatorI = 0;
-    public static final double kElevatorD = 0;
-    public static final double kElevatorSlewRate = 0;
+    public static final double kP = 1;
+    public static final double kI = 0;
+    public static final double kD = 0;
+    public static final double kSlewLimit = 1;
+
+    public static final double kLimitUp = 100000;//MARK
+    public static final double kLimitDown = -1000;//MARK
+    public static final double kRad = 31.75;
   }
+
   public static final class IntakeConstants {
-    public static final int kIntakeTakerCanID = 17;
-    public static final int kIntakeUpDownCanID = 18;
-    public static final int kIntakeSlewRate = 0; 
+    public static final int kRollerCanId = 17;
+    public static final int kMoverCanId = 18;
+    public static final double kSlewLimit = 1.6; 
+
+    public static final double kLimitUp = 100000.0;//MARK
+    public static final double kLimitDown = -100000.0;//MARK
+
+    public static final double kP = 1;
+    public static final double kI = 0;
+    public static final double kD = 0;
+
+    public static final double kRad = 18.5;
+
+    public static final double kTake = 1.0;
+    public static final double kGive = -1.0;
+
+    public static final double kHumanPlayerPos = 100; //POSE
+    public static final double kFloorPos = 0;         //POSE
+    public static final double kShootPos = 200;       //POSE
   }
 }

@@ -1,52 +1,72 @@
 package frc.robot.subsystems;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
-
-//import org.photonvision.PhotonCamera;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
-import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import frc.robot.Constants.IntakeConstants;
+import frc.robot.custom.CustomEncoder;
 
 public class IntakeSubsystem extends SubsystemBase{
-    private final PIDController pidController1 = new PIDController(1, 0, 0);
-    private final SlewRateLimiter filter = new SlewRateLimiter(IntakeConstants.kIntakeSlewRate);
-    //private PhotonCamera photonCamera;
+    private final int kRollerCanId = IntakeConstants.kRollerCanId;
+    private final int kMoverCanId = IntakeConstants.kMoverCanId;
 
-    private CANSparkMax mIntakeTaker = new CANSparkMax(IntakeConstants.kIntakeTakerCanID, MotorType.kBrushless);
-    private CANSparkMax mIntakeUpDown = new CANSparkMax(IntakeConstants.kIntakeUpDownCanID, MotorType.kBrushless);
-    private RelativeEncoder eIntakeUpDown = mIntakeUpDown.getEncoder();
+    private final double kRad = IntakeConstants.kRad;
+
+    private final double kSlewLimit = IntakeConstants.kSlewLimit;
+
+    private final double kLimitUp = IntakeConstants.kLimitUp;
+    private final double kLimitDown = IntakeConstants.kLimitDown;
+
+    private final SlewRateLimiter filter = new SlewRateLimiter(kSlewLimit);
+
+    private CANSparkMax mRoller = new CANSparkMax(kRollerCanId, MotorType.kBrushless);
+    private CANSparkMax mMover = new CANSparkMax(kMoverCanId, MotorType.kBrushless);
+
+    private CustomEncoder customEncoder;
+
     public IntakeSubsystem(){
-        //this.photonCamera = photonCamera;
-        mIntakeUpDown.setIdleMode(IdleMode.kBrake);
+        customEncoder = new CustomEncoder(mMover.getEncoder(), kRad);
     }
-    /*
-     * (-) yon yukari
-     * (+) yon asagi      
-     */
-    public void IntakeMove(double speed){
-        mIntakeTaker.set(speed);
-    }
-    /*
-     * (+) yon = in 
-     * (-) yon = out
+
+    /**
+     * Starts the movement of the intake at given speed
+     * @param speed
      */ 
-    public void IntakeTake(double speed){
-        mIntakeUpDown.set(speed);
+    public void limitlessMove(double speed){
+        mMover.set(speed);
     }
 
-    public RelativeEncoder giveUpDownEncoder(){
-        return eIntakeUpDown;
+    /**
+     * Starts the movement of the roller at given speed
+     * @param speed
+     *      *(+)  -> In
+     *      *(-)  -> Out
+     */ 
+    public void setRoller(double speed){
+        mRoller.set(speed);
     }
 
-    public double returnValueForEntry(){
-        return eIntakeUpDown.getPosition();
+    /**
+     * Moves the Intake at up and down direction.
+     * @param speed
+     *      *(-)  -> Up
+     *      *(+)  -> Down      
+     */
+    public void move(double speed){
+        speed = filter.calculate(speed);
+        double distance = customEncoder.getDistance();
+        if((speed > 0 && distance <= kLimitUp) || (speed < 0 && distance >= kLimitDown))//MARK
+            limitlessMove(speed);
+        else
+            limitlessMove(0);
+    }
+
+    public RelativeEncoder giveMoverEncoder(){
+        return mMover.getEncoder();
     }
 
     public void driveWithJoystick(double joystick){
-        IntakeMove(joystick);
+        move(joystick);
     }
 }
-//roller , asa yukari + otonom

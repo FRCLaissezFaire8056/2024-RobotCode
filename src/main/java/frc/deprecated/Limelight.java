@@ -1,5 +1,4 @@
-package frc.robot.subsystems;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+package frc.deprecated;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -8,11 +7,6 @@ import frc.robot.Constants.LimelightConstants;
 
 
 public class Limelight extends SubsystemBase {
-  private Dashboard dashboard;
-  public Limelight(Dashboard dashboard){
-    this.dashboard = dashboard;
-  }
-  
   //Limelight NetworkTables
   NetworkTable table = NetworkTableInstance.getDefault().getTable("limelight");
   NetworkTableEntry tv = table.getEntry("tv");

@@ -2,56 +2,72 @@ package frc.robot.subsystems;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.CANSparkLowLevel.MotorType;
-import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.subsystems.Dashboard;
-import frc.robot.Constants;
 import frc.robot.Constants.ElevatorConstants;
+import frc.robot.custom.CustomEncoder;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class ElevatorSubsystem extends SubsystemBase{
-    private final CANSparkMax mElevatorMaster = new CANSparkMax(ElevatorConstants.kMasterCanID, MotorType.kBrushless);
-    private final CANSparkMax mElevatorFollower = new CANSparkMax(ElevatorConstants.kFollowerCanID, MotorType.kBrushless);
-    private final PIDController pidController = new PIDController(ElevatorConstants.kElevatorP, ElevatorConstants.kElevatorI, ElevatorConstants.kElevatorD);
-    private final SlewRateLimiter filter = new SlewRateLimiter(ElevatorConstants.kElevatorSlewRate);
-    private final RelativeEncoder masterEncoder;
 
-    public ElevatorSubsystem(){
-        mElevatorMaster.follow(mElevatorFollower);
-        //pidController.enableContinuousInput(-180, 180);
-        masterEncoder = mElevatorFollower.getEncoder();
-    }
+    private final int kMasterCanId = ElevatorConstants.kMasterCanID;
+    private final int kFollowerCanId = ElevatorConstants.kFollowerCanID;
 
+    private final double kSlewLimit = ElevatorConstants.kSlewLimit;
+    private final double kRad = ElevatorConstants.kRad;
 
-    public double elevatorState(){
-        double encoder_reading = mElevatorMaster.getEncoder().getPosition();
-        double state = encoder_reading * 1;
-        return state;
-    }
+    private final double kLimitUp = ElevatorConstants.kLimitUp;
+    private final double kLimitDown = ElevatorConstants.kLimitDown;
 
-    public void ElevatorPID(double goal){
-        double speed = pidController.calculate(elevatorState(), goal);
+    private final CANSparkMax mElevatorMaster = new CANSparkMax(kMasterCanId, MotorType.kBrushless);
+    private final CANSparkMax mElevatorFollower = new CANSparkMax(kFollowerCanId, MotorType.kBrushless);
+    
+    private final SlewRateLimiter filter = new SlewRateLimiter(kSlewLimit);
+    private final CustomEncoder customEncoder = new CustomEncoder(mElevatorMaster.getEncoder(), kRad);
+ 
+    public ElevatorSubsystem(){}
+    /**
+     * Starts the movement of the elevator at given speed. 
+     * <b>Don't use if you know what are you doing.</b>
+     * @param speed
+     *      (+)  -> Up
+     *      (-)  -> Down
+     */ 
+    public void limitlessMove(double speed){
         mElevatorMaster.set(speed);
         mElevatorFollower.set(-speed);
     }
+
+    /**
+     * Starts the movement of the elevator at given speed
+     * @param speed
+     *      (+)  -> Up
+     *      (-)  -> Down
+     */ 
     public void move(double speed){
         speed = filter.calculate(speed);
-        mElevatorMaster.set(speed);
-        mElevatorFollower.set(-speed);
+        double dist = customEncoder.getDistance();
+        if((speed > 0 && dist <= kLimitUp) || (speed < 0 && dist >= kLimitDown))
+        {
+            mElevatorMaster.set(speed);
+            mElevatorFollower.set(-speed);
+        }
+        else{
+            mElevatorMaster.set(0);
+            mElevatorFollower.set(0);
+        }
+
     }
 
-
+    public RelativeEncoder giveEncoder(){
+        return mElevatorMaster.getEncoder();
+    }
 
     public void driveWithJoystick(double joystick){
         move(joystick);
     }
-
-    public double returnValueForEntry(){
-        return masterEncoder.getPosition();
-    }
-
     @Override
     public void periodic() {
-        //dashboard.putOnDashboard("emtemt", mElevatorMaster.getEncoder().getPosition(), 2);
+         SmartDashboard.putNumber("encoder-elevator", customEncoder.getDistance());
     }
 }
