@@ -9,6 +9,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.units.Unit;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide
@@ -192,8 +193,8 @@ public final class Constants {
   }
 
   public static final class IntakeConstants {
-    public static final int kRollerCanId = 17;
-    public static final int kMoverCanId = 18;
+    public static final int kRollerCanId = 18;
+    public static final int kMoverCanId = 17;
     public static final double kSlewLimit = 1.6; 
 
     public static final double kLimitUp = 100000.0;//MARK
@@ -211,5 +212,19 @@ public final class Constants {
     public static final double kHumanPlayerPos = 100; //POSE
     public static final double kFloorPos = 0;         //POSE
     public static final double kShootPos = 200;       //POSE
+  }
+
+  public static final class VisionConstants {
+    public static final double kAmpHeight = 1.3;//Units.inchesToMeters(50.13);//50.13
+    public static final double kCamHeight = 0.675;//68.5
+    public static final double kCamAngle = Units.degreesToRadians(25);
+
+    public static final double kTurningP = 0.01;
+    public static final double kTurningI = 0;
+    public static final double kTurningD = 0.001;
+
+    public static final double kDrivingP = 0.12;
+    public static final double kDrivingI = 0;
+    public static final double kDrivingD = 0.01;
   }
 }

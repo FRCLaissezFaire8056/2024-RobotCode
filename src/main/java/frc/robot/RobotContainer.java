@@ -28,6 +28,8 @@ import java.util.List;
 
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
+import frc.robot.subsystems.VisionSubsystem;
+
 //Commands
 import frc.robot.commands.ShooterCommands.ShootCmd;
 import frc.robot.commands.ShooterCommands.GrabCmd;
@@ -35,6 +37,7 @@ import frc.robot.commands.IntakeCommands.IntakeGiveCmd;
 import frc.robot.commands.IntakeCommands.IntakeTakeCmd;
 import frc.robot.commands.ShooterCommands.WristPIDCmd;
 import frc.robot.commands.DriveCommands.SetXCmd;
+import frc.robot.commands.TurnToAngleCmd;
 
 /*
  * This class is where the bulk of the robot should be declared.  Since Command-based is a
@@ -53,6 +56,7 @@ public class RobotContainer {
   private final ShooterSubsystem shooter = new ShooterSubsystem();
   private final ElevatorSubsystem elevatorSubsystem = new ElevatorSubsystem();
   private final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
+  private final VisionSubsystem visionSubsystem = new VisionSubsystem(m_robotDrive, shooter, intakeSubsystem);
 
 
   // The driver's controller
@@ -71,8 +75,7 @@ public class RobotContainer {
     intakeSubsystem.setDefaultCommand(
         new RunCommand(
                 () -> intakeSubsystem.driveWithJoystick(
-                    MathUtil.applyDeadband(
-                        js.getRawAxis(1), OIConstants.kDriveDeadband)), 
+                        js.getRawAxis(1)), 
                 intakeSubsystem)
             ); 
 
@@ -80,8 +83,7 @@ public class RobotContainer {
     elevatorSubsystem.setDefaultCommand(
         new RunCommand(
             () -> elevatorSubsystem.driveWithJoystick(
-                    MathUtil.applyDeadband(
-                        (js.getRawAxis(3) - js.getRawAxis(2)), OIConstants.kDriveDeadband)),
+                        (js.getRawAxis(3) - js.getRawAxis(2))),
                 elevatorSubsystem)
             );
 
@@ -89,10 +91,11 @@ public class RobotContainer {
     shooter.setDefaultCommand(
         new RunCommand(
             () -> shooter.driveWithJoystick(
-                MathUtil.applyDeadband(
-                    js.getRawAxis(4), OIConstants.kDriveDeadband)),
+                    js.getRawAxis(4)),
                 shooter)
             );
+    
+    
 
     
 
@@ -146,6 +149,10 @@ public class RobotContainer {
     
     new JoystickButton(js2, 1)
         .whileTrue(new WristPIDCmd(shooter, 2000));
+    
+    new JoystickButton(js2, 2)
+        .whileTrue(new RunCommand(
+            ()->visionSubsystem.caluclate(), visionSubsystem));
 
     new JoystickButton(js2, 5)
         .whileTrue(new RunCommand(
