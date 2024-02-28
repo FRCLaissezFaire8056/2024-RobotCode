@@ -7,33 +7,22 @@ package frc.robot.subsystems;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.util.WPIUtilJNI;
-
-import java.util.List;
 
 import com.kauailabs.navx.frc.AHRS;
 import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.path.GoalEndState;
 import com.pathplanner.lib.path.PathConstraints;
-import com.pathplanner.lib.path.PathPlannerPath;
-
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.SPI.Port;
 import frc.robot.Constants.AutoBuilderConstants;
 import frc.robot.Constants.DriveConstants;
 import frc.utils.SwerveUtils;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-
-import edu.wpi.first.math.controller.HolonomicDriveController;
-import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.controller.ProfiledPIDController;
 
 import edu.wpi.first.wpilibj2.command.Command;
 
@@ -299,58 +288,13 @@ public class DriveSubsystem extends SubsystemBase {
     SwerveModuleState[] swerveModuleStates = DriveConstants.kDriveKinematics.toSwerveModuleStates(discreteSpeeds);
     SwerveDriveKinematics.desaturateWheelSpeeds(swerveModuleStates, 4.8);
     setModuleStates(swerveModuleStates);
-    /*m_frontLeft.setDesiredState(swerveModuleStates[0]);
-    m_frontRight.setDesiredState(swerveModuleStates[1]);
-    m_rearLeft.setDesiredState(swerveModuleStates[2]);
-    m_rearRight.setDesiredState(swerveModuleStates[3]);*/
-  }
-
-  private final HolonomicDriveController holoController = new HolonomicDriveController(
-    new PIDController(1, 0, 0),
-    new PIDController(1.2, 0, 0),
-    new ProfiledPIDController(1, 0, 0, 
-    new TrapezoidProfile.Constraints(6.38, 3.14)));
-
-  public void followTrajectory(Pose2d desiredPose, double linearVelocity){
-    ChassisSpeeds chassisSpeeds = 
-              holoController.calculate(
-                getPose(),
-                desiredPose, 
-                linearVelocity,
-                desiredPose.getRotation());
-    
-    System.out.println("dddddddd");
-    System.out.println(chassisSpeeds);
-    System.out.println("dddddddd");
-    setModuleStates(DriveConstants.kDriveKinematics.toSwerveModuleStates(chassisSpeeds));
   }
 
   public Command goToPose2d(Pose2d pose){
-    return AutoBuilder.pathfindToPose(pose,
-                              new PathConstraints(3.0, 3.0, 2*Math.PI, 4*Math.PI)
-                              );
+    return AutoBuilder.pathfindToPose
+      (pose,
+      new PathConstraints(3.0, 3.0, 2*Math.PI, 4*Math.PI)
+      );
                   
   }
-
-  public void createPathAndFollow(Pose2d poseOfObject){
-    System.out.println("=========================");
-    System.out.println(poseOfObject);
-    System.out.println("=========================");
-    List<Translation2d> points = PathPlannerPath.bezierFromPoses(new Pose2d(0, 0, new Rotation2d(0)), 
-    (new Pose2d(1.0, 1.0, new Rotation2d(0))),
-    (new Pose2d(2.0, 1.0, new Rotation2d(90))),
-    (new Pose2d(2.0, 2.0, new Rotation2d(-90)))
-    );
-    PathPlannerPath path = new PathPlannerPath(
-      points,
-      new PathConstraints(3.0, 3.0, 2*Math.PI, 4*Math.PI),
-      new GoalEndState(0, Rotation2d.fromDegrees(-90))
-    );
-    path.preventFlipping =true;
-    System.out.println("===kkkk=================kkk=====");
-    System.out.println(path);
-    System.out.println("=====kkk===========kkk=========");
-    AutoBuilder.followPath(path);
-  }
-
 }

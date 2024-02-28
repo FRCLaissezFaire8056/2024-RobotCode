@@ -21,7 +21,6 @@ import frc.robot.Constants.OIConstants;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SwerveControllerCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
@@ -29,18 +28,14 @@ import java.util.List;
 
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
-import frc.robot.subsystems.NewVisionSubsystem;
 import frc.robot.subsystems.VisionSubsystem;
-import pabeles.concurrency.ConcurrencyOps.NewInstance;
 //Commands
 import frc.robot.commands.ShooterCommands.ShootCmd;
 import frc.robot.commands.ShooterCommands.GrabCmd;
 import frc.robot.commands.IntakeCommands.IntakeGiveCmd;
 import frc.robot.commands.IntakeCommands.IntakeTakeCmd;
 import frc.robot.commands.ShooterCommands.WristPIDCmd;
-import frc.robot.commands.VisionCommands.ReadTag;
 import frc.robot.commands.DriveCommands.SetXCmd;
-import frc.robot.commands.TurnToAngleCmd;
 
 /*
  * This class is where the bulk of the robot should be declared.  Since Command-based is a
@@ -59,7 +54,7 @@ public class RobotContainer {
   private final ShooterSubsystem shooter = new ShooterSubsystem();
   private final ElevatorSubsystem elevatorSubsystem = new ElevatorSubsystem();
   private final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
-  private final VisionSubsystem visionSubsystem = new VisionSubsystem(m_robotDrive, shooter, intakeSubsystem);
+  private final VisionSubsystem visionSubsystem = new VisionSubsystem();
   //private final NewVisionSubsystem visionSubsystem = new NewVisionSubsystem();
 
   // The driver's controller
@@ -154,8 +149,7 @@ public class RobotContainer {
         .whileTrue(new WristPIDCmd(shooter, 2000));
     
     new JoystickButton(js2, 2)
-        .whileTrue( new ReadTag(visionSubsystem, m_robotDrive)
-        );
+        .whileTrue(m_robotDrive.goToPose2d(visionSubsystem.getPose2d()));
 
     new JoystickButton(js2, 5)
         .whileTrue(new RunCommand(
