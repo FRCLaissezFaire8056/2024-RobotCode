@@ -21,6 +21,7 @@ import frc.robot.Constants.OIConstants;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SwerveControllerCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
@@ -28,14 +29,16 @@ import java.util.List;
 
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
+import frc.robot.subsystems.NewVisionSubsystem;
 import frc.robot.subsystems.VisionSubsystem;
-
+import pabeles.concurrency.ConcurrencyOps.NewInstance;
 //Commands
 import frc.robot.commands.ShooterCommands.ShootCmd;
 import frc.robot.commands.ShooterCommands.GrabCmd;
 import frc.robot.commands.IntakeCommands.IntakeGiveCmd;
 import frc.robot.commands.IntakeCommands.IntakeTakeCmd;
 import frc.robot.commands.ShooterCommands.WristPIDCmd;
+import frc.robot.commands.VisionCommands.ReadTag;
 import frc.robot.commands.DriveCommands.SetXCmd;
 import frc.robot.commands.TurnToAngleCmd;
 
@@ -57,7 +60,7 @@ public class RobotContainer {
   private final ElevatorSubsystem elevatorSubsystem = new ElevatorSubsystem();
   private final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
   private final VisionSubsystem visionSubsystem = new VisionSubsystem(m_robotDrive, shooter, intakeSubsystem);
-
+  //private final NewVisionSubsystem visionSubsystem = new NewVisionSubsystem();
 
   // The driver's controller
 
@@ -105,9 +108,9 @@ public class RobotContainer {
         // Turning is controlled by the X axis of the right stick.
         new RunCommand(
             () -> m_robotDrive.drive(
-                MathUtil.applyDeadband(js2.getRawAxis(1)/4, OIConstants.kDriveDeadband),
-                MathUtil.applyDeadband(js2.getRawAxis(0)/4, OIConstants.kDriveDeadband),
-                -MathUtil.applyDeadband((js2.getRawAxis(3) - js2.getRawAxis(2))/4, OIConstants.kDriveDeadband),
+                MathUtil.applyDeadband(js2.getRawAxis(1)/2, OIConstants.kDriveDeadband),
+                MathUtil.applyDeadband(js2.getRawAxis(0)/2, OIConstants.kDriveDeadband),
+                -MathUtil.applyDeadband((js2.getRawAxis(3) - js2.getRawAxis(2))/2, OIConstants.kDriveDeadband),
                 
 
                 true, true),
@@ -151,8 +154,8 @@ public class RobotContainer {
         .whileTrue(new WristPIDCmd(shooter, 2000));
     
     new JoystickButton(js2, 2)
-        .whileTrue(new RunCommand(
-            ()->visionSubsystem.caluclate(), visionSubsystem));
+        .whileTrue( new ReadTag(visionSubsystem, m_robotDrive)
+        );
 
     new JoystickButton(js2, 5)
         .whileTrue(new RunCommand(
