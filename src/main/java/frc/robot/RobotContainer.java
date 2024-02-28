@@ -13,18 +13,26 @@ import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.trajectory.TrajectoryConfig;
 import edu.wpi.first.math.trajectory.TrajectoryGenerator;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.AutoConstants;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.OIConstants;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SwerveControllerCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import java.util.List;
+
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.path.GoalEndState;
+import com.pathplanner.lib.path.PathConstraints;
+import com.pathplanner.lib.path.PathPlannerPath;
 
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
@@ -148,13 +156,34 @@ public class RobotContainer {
     new JoystickButton(js2, 1)
         .whileTrue(new WristPIDCmd(shooter, 2000));
     
-    new JoystickButton(js2, 2)
-        .whileTrue(m_robotDrive.goToPose2d(visionSubsystem.getPose2d()));
+    //new JoystickButton(js2, 2)
+        //.whileTrue(m_robotDrive.goToPose2d(visionSubsystem.getPose2d()));
 
     new JoystickButton(js2, 5)
         .whileTrue(new RunCommand(
             () -> m_robotDrive.resetRelative(), m_robotDrive));
     
+    SmartDashboard.putData("on-the-fly", Commands.runOnce(() -> {
+        Pose2d currPose2d = m_robotDrive.getPose();
+
+        Pose2d startPose2d = new Pose2d(currPose2d.getTranslation(), new Rotation2d());
+        //Pose2d endPose2d = new Pose2d(currPose2d.getTranslation().plus(new Translation2d(2.0, 0.0)), new Rotation2d());
+        Pose2d visionPose = visionSubsystem.getPose2d();
+        Pose2d endPose2d = new Pose2d(currPose2d.getTranslation().plus(visionPose.getTranslation()), new Rotation2d());
+        List<Translation2d> bezierPoints = PathPlannerPath.bezierFromPoses(startPose2d, endPose2d);
+        SmartDashboard.putString("bezier", bezierPoints.toString());
+        SmartDashboard.putString("endpose", endPose2d.toString());
+
+        PathPlannerPath path = new PathPlannerPath(
+            bezierPoints, 
+            new PathConstraints(1.0, 1.0, Units.degreesToRadians(360), Units.degreesToRadians(540)),
+            new GoalEndState(0.0, currPose2d.getRotation())
+        );
+        
+        path.preventFlipping = true;
+        SmartDashboard.putString("path", path.toString());
+        AutoBuilder.followPath(path).schedule();
+    }));
   }
   /**
    * Just for disappearing the error: <b>m_robotContainer not used</b>
@@ -191,7 +220,8 @@ public class RobotContainer {
 
     SwerveControllerCommand swerveControllerCommand = new SwerveControllerCommand(
         exampleTrajectory,
-        m_robotDrive::getPose, // Functional interface to feed supplier
+        m_robotDrive::getPose,
+        // Functional interface to feed supplier
         DriveConstants.kDriveKinematics,
 
         // Position controllers

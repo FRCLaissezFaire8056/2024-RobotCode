@@ -29,8 +29,12 @@ import edu.wpi.first.wpilibj2.command.Command;
 public class DriveSubsystem extends SubsystemBase {
 
   public DriveSubsystem(){
-    AutoBuilder.configureHolonomic(this::getPose,
-    this::resetOdometry, this::getChassisSpeeds, this::setChassisSpeed, AutoBuilderConstants.hPathConf, 
+    AutoBuilder.configureHolonomic(
+    this::getPose,
+    this::resetOdometry, 
+    this::getChassisSpeeds, 
+    this::setChassisSpeed, 
+    AutoBuilderConstants.hPathConf, 
     () -> {
               var alliance = DriverStation.getAlliance();
               if (alliance.isPresent()) {
@@ -283,18 +287,18 @@ public class DriveSubsystem extends SubsystemBase {
   }
 
   public void setChassisSpeed(ChassisSpeeds chassisSpeeds) {
-    ChassisSpeeds discreteSpeeds = ChassisSpeeds.discretize(chassisSpeeds, 0.02);
-    discreteSpeeds = ChassisSpeeds.fromRobotRelativeSpeeds(discreteSpeeds, new Rotation2d(getHeading()));
-    SwerveModuleState[] swerveModuleStates = DriveConstants.kDriveKinematics.toSwerveModuleStates(discreteSpeeds);
+    SwerveModuleState[] swerveModuleStates = DriveConstants.kDriveKinematics.toSwerveModuleStates(chassisSpeeds);
     SwerveDriveKinematics.desaturateWheelSpeeds(swerveModuleStates, 4.8);
     setModuleStates(swerveModuleStates);
   }
 
   public Command goToPose2d(Pose2d pose){
+    System.out.println(pose);
     return AutoBuilder.pathfindToPose
       (pose,
-      new PathConstraints(3.0, 3.0, 2*Math.PI, 4*Math.PI)
+      new PathConstraints(1.0, 1.0, 2*Math.PI, 4*Math.PI)
       );
+      
                   
   }
 }

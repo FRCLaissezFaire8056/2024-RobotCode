@@ -10,18 +10,16 @@ import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.AutoConstants;
 import frc.robot.Constants.DriveConstants;
+import frc.robot.subsystems.DriveSubsystem;
 
 public class FollowTrajectory extends Command {
-    TrajectoryConfig config = new TrajectoryConfig(AutoConstants.kMaxSpeedMetersPerSecond,
-    AutoConstants.kMaxAccelerationMetersPerSecondSquared)
-    .setKinematics(DriveConstants.kDriveKinematics);
+    private DriveSubsystem driveSubsystem;
+    public FollowTrajectory(DriveSubsystem driveSubsystem){
+        this.driveSubsystem = driveSubsystem;
+    }
+    
 
-    Trajectory trajectory = TrajectoryGenerator.generateTrajectory(
-        new Pose2d(0, 0, new Rotation2d(0)),
-        List.of(new Translation2d(1,1), new Translation2d(2, -1)),
-        new Pose2d(3, 0, new Rotation2d(0)),
-        config
-    );
+    
 }
 
 /*
