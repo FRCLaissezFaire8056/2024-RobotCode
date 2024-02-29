@@ -167,17 +167,17 @@ public class RobotContainer {
         Pose2d currPose2d = m_robotDrive.getPose();
 
         Pose2d startPose2d = new Pose2d(currPose2d.getTranslation(), new Rotation2d());
-        //Pose2d endPose2d = new Pose2d(currPose2d.getTranslation().plus(new Translation2d(2.0, 0.0)), new Rotation2d());
+        Pose2d endPose2d = new Pose2d(currPose2d.getTranslation().plus(new Translation2d(1, 0)), new Rotation2d().fromDegrees(m_robotDrive.m_gyro.getAngle()));
         Pose2d visionPose = visionSubsystem.getPose2d();
-        Pose2d endPose2d = new Pose2d(currPose2d.getTranslation().plus(visionPose.getTranslation()), new Rotation2d());
-        List<Translation2d> bezierPoints = PathPlannerPath.bezierFromPoses(startPose2d, endPose2d);
-        SmartDashboard.putString("bezier", bezierPoints.toString());
+        //Pose2d endPose2d = new Pose2d(currPose2d.getTranslation().plus(visionPose.getTranslation()), new Rotation2d());
+        List<Translation2d> bezierPoints = PathPlannerPath.bezierFromPoses(currPose2d, endPose2d);
+        SmartDashboard.putString("bezier", startPose2d.toString());
         SmartDashboard.putString("endpose", endPose2d.toString());
 
         PathPlannerPath path = new PathPlannerPath(
             bezierPoints, 
             new PathConstraints(1.0, 1.0, Units.degreesToRadians(360), Units.degreesToRadians(540)),
-            new GoalEndState(0.0, currPose2d.getRotation())
+            new GoalEndState(0.0, new Rotation2d())
         );
         
         path.preventFlipping = true;
