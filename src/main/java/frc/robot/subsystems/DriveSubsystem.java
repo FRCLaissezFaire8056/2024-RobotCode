@@ -257,4 +257,13 @@ public class DriveSubsystem extends SubsystemBase {
   public double getTurnRate() {
     return this.m_gyro.getRate() * (DriveConstants.kGyroReversed ? -1.0 : 1.0);
   }
+
+  public SwerveModulePosition[] getModulePositions(){
+    return new SwerveModulePosition[] {
+      m_frontLeft.getPosition(),
+      m_frontRight.getPosition(),
+      m_rearLeft.getPosition(),
+      m_rearRight.getPosition()
+    };
+  }
 }

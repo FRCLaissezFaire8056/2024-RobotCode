@@ -56,7 +56,7 @@ public class RobotContainer {
   private final ShooterSubsystem shooter = new ShooterSubsystem();
   private final ElevatorSubsystem elevatorSubsystem = new ElevatorSubsystem();
   private final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
-  private final VisionSubsystem visionSubsystem = new VisionSubsystem(m_robotDrive, shooter, intakeSubsystem);
+  private final VisionSubsystem visionSubsystem = new VisionSubsystem(m_robotDrive);
 
 
   // The driver's controller
@@ -150,9 +150,6 @@ public class RobotContainer {
     new JoystickButton(js2, 1)
         .whileTrue(new WristPIDCmd(shooter, 2000));
     
-    new JoystickButton(js2, 2)
-        .whileTrue(new RunCommand(
-            ()->visionSubsystem.caluclate(), visionSubsystem));
 
     new JoystickButton(js2, 5)
         .whileTrue(new RunCommand(
