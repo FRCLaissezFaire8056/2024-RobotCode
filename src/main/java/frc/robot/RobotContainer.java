@@ -41,9 +41,11 @@ import frc.robot.subsystems.VisionSubsystem;
 import frc.robot.commands.ShooterCommands.ShootCmd;
 import frc.robot.commands.ShooterCommands.GrabCmd;
 import frc.robot.commands.IntakeCommands.IntakeGiveCmd;
+import frc.robot.commands.IntakeCommands.IntakePIDCmd;
 import frc.robot.commands.IntakeCommands.IntakeTakeCmd;
 import frc.robot.commands.ShooterCommands.WristPIDCmd;
 import frc.robot.commands.DriveCommands.SetXCmd;
+import frc.robot.commands.ElevatorCommands.ElevatorPIDCmd;
 
 /*
  * This class is where the bulk of the robot should be declared.  Since Command-based is a
@@ -126,13 +128,13 @@ public class RobotContainer {
   private void configureButtonBindings() {
     
     new JoystickButton(js, 1)
-        .whileTrue(new IntakeTakeCmd(intakeSubsystem));
+        .whileTrue(new IntakePIDCmd(intakeSubsystem, 380) );
     
     new JoystickButton(js, 2)
         .whileTrue(new IntakeGiveCmd(intakeSubsystem));
     
     new JoystickButton(js, 3)
-        .whileTrue(new SetXCmd(m_robotDrive)); 
+        .whileTrue(new IntakeTakeCmd(intakeSubsystem)); 
 
     new JoystickButton(js, 4)
         .whileTrue(new ShootCmd(shooter));

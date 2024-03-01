@@ -179,13 +179,15 @@ public final class Constants {
     public static final double kGrabSpeed = 1.0;
 
     public static final double kSlewLimit = 1.6;
-    public static final double kLimitUp = 7000;//MARK
-    public static final double kLimitDown = -7000;//MARK
+    public static final double kLimitUp = 8000;//MARK
+    public static final double kLimitDown = -60;//MARK
 
 
     public static final double kP = 0.0008;
     public static final double kI = 0.000001;
     public static final double kD = 0.000018;
+
+  
 
     public static final double kRad = 21.5;
 
@@ -194,13 +196,13 @@ public final class Constants {
   public static final class ElevatorConstants {
     public static final int kMasterCanID = 31;
     public static final int kFollowerCanID = 32;
-    public static final double kP = 1;
+    public static final double kP = 0.02;
     public static final double kI = 0;
-    public static final double kD = 0;
+    public static final double kD = 0.000018;
     public static final double kSlewLimit = 1;
 
-    public static final double kLimitUp = 100000;//MARK
-    public static final double kLimitDown = -1000;//MARK
+    public static final double kLimitUp = 500;//MARK
+    public static final double kLimitDown = 5;//MARK
     public static final double kRad = 31.75;
   }
 
@@ -209,12 +211,12 @@ public final class Constants {
     public static final int kMoverCanId = 17;
     public static final double kSlewLimit = 1.6; 
 
-    public static final double kLimitUp = 100000.0;//MARK
-    public static final double kLimitDown = -100000.0;//MARK
+    public static final double kLimitUp = 385.0;//MARK
+    public static final double kLimitDown = 0;//MARK
 
-    public static final double kP = 1;
+    public static final double kP = 0.04;
     public static final double kI = 0;
-    public static final double kD = 0;
+    public static final double kD = 0.0015;
 
     public static final double kRad = 18.5;
 
