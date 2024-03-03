@@ -3,14 +3,18 @@
 // the WPILib BSD license file in the root directory of this project.
 
 package frc.robot;
+import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
 import com.revrobotics.CANSparkBase.IdleMode;
+import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.geometry.Rotation3d;
 
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.units.Unit;
-
+import com.pathplanner.lib.util.PIDConstants;
+import com.pathplanner.lib.util.ReplanningConfig;
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide
  * numerical or boolean
@@ -27,7 +31,7 @@ public final class Constants {
   public static final class DriveConstants {
     // Driving Parameters - Note that these are not the maximum capable speeds of
     // the robot, rather the allowed maximum speeds
-    public static final double kMaxSpeedMetersPerSecond = 4.8;
+    public static final double kMaxSpeedMetersPerSecond = 6.4;
     public static final double kMaxAngularSpeed = 2 * Math.PI; // radians per second
 
     public static final double kDirectionSlewRate = 1.2; // radians per second
@@ -63,6 +67,17 @@ public final class Constants {
     public static final int kRearRightTurningCanId = 41;
 
     public static final boolean kGyroReversed = true;
+  }
+
+  public static final class AutoBuilderConstants {
+    public static final HolonomicPathFollowerConfig hPathConf =
+    new HolonomicPathFollowerConfig( // HolonomicPathFollowerConfig, this should likely live in your Constants class
+                    new PIDConstants(5.0, 0.0, 0.0), // Translation PID constants
+                    new PIDConstants(5.0, 0.0, 0.0), // Rotation PID constants
+                    4.5, // Max module speed, in m/s
+                    0.4, // Drive base radius in meters. Distance from robot center to furthest module.
+                    new ReplanningConfig() // Default path replanning config. See the API for the options here
+            );
   }
 
   public static final class ModuleConstants {
@@ -167,13 +182,18 @@ public final class Constants {
     public static final double kGrabSpeed = 1.0;
 
     public static final double kSlewLimit = 1.6;
-    public static final double kLimitUp = 7000;//MARK
-    public static final double kLimitDown = -7000;//MARK
+    public static final double kLimitUp = 8000;//MARK
+    public static final double kLimitDown = -60;//MARK
+
+    public static final double kGoalUp = 4430;
+    public static final double kGoalDown = 0;
 
 
     public static final double kP = 0.0008;
     public static final double kI = 0.000001;
     public static final double kD = 0.000018;
+
+  
 
     public static final double kRad = 21.5;
 
@@ -182,31 +202,40 @@ public final class Constants {
   public static final class ElevatorConstants {
     public static final int kMasterCanID = 31;
     public static final int kFollowerCanID = 32;
-    public static final double kP = 1;
+    public static final double kP = 0.02;
     public static final double kI = 0;
-    public static final double kD = 0;
+    public static final double kD = 0.000018;
     public static final double kSlewLimit = 1;
 
-    public static final double kLimitUp = 100000;//MARK
-    public static final double kLimitDown = -1000;//MARK
+    public static final double kLimitUp = 500;//MARK
+    public static final double kLimitDown = 5;//MARK
+
+    public static final double kGoalUp = 500;
+    public static final double kGoalDown = 0;
+
     public static final double kRad = 31.75;
   }
 
   public static final class IntakeConstants {
     public static final int kRollerCanId = 18;
     public static final int kMoverCanId = 17;
-    public static final double kSlewLimit = 1.6; 
+    public static final double kSlewLimit = 0.8; 
 
-    public static final double kLimitUp = 100000.0;//MARK
-    public static final double kLimitDown = -100000.0;//MARK
+    public static final double kLimitUp = 340.0;//MARK
+    //public static final double kLimitDown = 0;//MARK
+    public static final double kLimitDown = -1000000;
 
-    public static final double kP = 1;
+    public static final double kGoalUp = 340.0;
+    public static final double kGoalDown = 0;
+
+
+    public static final double kP = 0.04;
     public static final double kI = 0;
-    public static final double kD = 0;
+    public static final double kD = 0.0015;
 
     public static final double kRad = 18.5;
 
-    public static final double kTake = 1.0;
+    public static final double kTake = .8;
     public static final double kGive = -1.0;
 
     public static final double kHumanPlayerPos = 100; //POSE
@@ -214,10 +243,16 @@ public final class Constants {
     public static final double kShootPos = 200;       //POSE
   }
 
+
+
   public static final class VisionConstants {
     public static final double kAmpHeight = 1.3;//Units.inchesToMeters(50.13);//50.13
     public static final double kCamHeight = 0.675;//68.5
     public static final double kCamAngle = Units.degreesToRadians(25);
+
+    public static final double kCamZToCenter = 0.675;
+    public static final double kCamXToCenter = 0.280;
+    public static final boolean kCamForvard = false;
 
     public static final double kTurningP = 0.01;
     public static final double kTurningI = 0;
@@ -226,5 +261,7 @@ public final class Constants {
     public static final double kDrivingP = 0.12;
     public static final double kDrivingI = 0;
     public static final double kDrivingD = 0.01;
+
+    public static final Transform3d robotToCam = new Transform3d(new Translation3d(kCamXToCenter, 0, kCamZToCenter), new Rotation3d(0, 180, 15));
   }
 }

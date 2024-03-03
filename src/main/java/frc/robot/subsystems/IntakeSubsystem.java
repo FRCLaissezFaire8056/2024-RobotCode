@@ -1,6 +1,8 @@
 package frc.robot.subsystems;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.math.filter.SlewRateLimiter;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.CANSparkLowLevel.MotorType;
@@ -68,5 +70,10 @@ public class IntakeSubsystem extends SubsystemBase{
 
     public void driveWithJoystick(double joystick){
         move(joystick);
+    }
+
+      @Override
+    public void periodic() {
+         SmartDashboard.putNumber("encoder-intake", customEncoder.getDistance());
     }
 }

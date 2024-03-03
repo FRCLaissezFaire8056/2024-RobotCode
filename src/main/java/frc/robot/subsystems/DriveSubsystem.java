@@ -13,17 +13,46 @@ import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.util.WPIUtilJNI;
+
 import com.kauailabs.navx.frc.AHRS;
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.path.PathConstraints;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.SPI.Port;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.robot.Constants.AutoBuilderConstants;
 import frc.robot.Constants.DriveConstants;
 import frc.utils.SwerveUtils;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
+import edu.wpi.first.wpilibj2.command.Command;
+
 public class DriveSubsystem extends SubsystemBase {
-  // Create MAXSwerveModules
-    public final AHRS m_gyro = new AHRS(Port.kMXP);
+  public DriveSubsystem(){
+    AutoBuilder.configureHolonomic(
+    this::getPose,
+    this::resetOdometry, 
+    this::getChassisSpeeds, 
+    this::setChassisSpeed, 
+    AutoBuilderConstants.hPathConf, 
+    () -> {
+              var alliance = DriverStation.getAlliance();
+              if (alliance.isPresent()) {
+                return alliance.get() == DriverStation.Alliance.Red;
+              }
+              return false;
+            },
+            this);
     
-    private final MAXSwerveModule m_frontLeft = new MAXSwerveModule(
+    SmartDashboard.putData("Field", m_field);
+  }
+  
+  // Create MAXSwerveModules
+  public final AHRS m_gyro = new AHRS(Port.kMXP);
+  private Field2d m_field = new Field2d();
+    
+  private final MAXSwerveModule m_frontLeft = new MAXSwerveModule(
       DriveConstants.kFrontLeftDrivingCanId,
       DriveConstants.kFrontLeftTurningCanId,
       DriveConstants.kFrontLeftChassisAngularOffset);
@@ -77,6 +106,8 @@ public class DriveSubsystem extends SubsystemBase {
             m_rearLeft.getPosition(),
             m_rearRight.getPosition()
         });
+      SmartDashboard.putNumber("Swerve Angle", m_gyro.getAngle());
+      m_field.setRobotPose(m_odometry.getPoseMeters());
   }
 
   /**
@@ -115,9 +146,6 @@ public class DriveSubsystem extends SubsystemBase {
    *                      field.
    * @param rateLimit     Whether to enable rate limiting for smoother control.
    */
-
-
-
  //  !!!!! DRIVING COMMAND !!!!!    
   public void drive(double xSpeed, double ySpeed, double rot, boolean fieldRelative, boolean rateLimit) {
     
@@ -214,6 +242,8 @@ public class DriveSubsystem extends SubsystemBase {
     zeroHeading();
   }
 
+
+
   /**
    * Sets the swerve ModuleStates.
    *
@@ -258,12 +288,23 @@ public class DriveSubsystem extends SubsystemBase {
     return this.m_gyro.getRate() * (DriveConstants.kGyroReversed ? -1.0 : 1.0);
   }
 
-  public SwerveModulePosition[] getModulePositions(){
-    return new SwerveModulePosition[] {
-      m_frontLeft.getPosition(),
-      m_frontRight.getPosition(),
-      m_rearLeft.getPosition(),
-      m_rearRight.getPosition()
-    };
+  public ChassisSpeeds getChassisSpeeds(){
+    return DriveConstants.kDriveKinematics.toChassisSpeeds(m_frontLeft.getState(), m_frontRight.getState(), m_rearLeft.getState(), m_rearRight.getState());
+  }
+
+  public void setChassisSpeed(ChassisSpeeds chassisSpeeds) {
+    SwerveModuleState[] swerveModuleStates = DriveConstants.kDriveKinematics.toSwerveModuleStates(chassisSpeeds);
+    SwerveDriveKinematics.desaturateWheelSpeeds(swerveModuleStates, 4.8);
+    setModuleStates(swerveModuleStates);
+  }
+
+  public Command goToPose2d(Pose2d pose){
+    System.out.println(pose);
+    return AutoBuilder.pathfindToPose
+      (pose,
+      new PathConstraints(4.0, 4.0, 2*Math.PI, 4*Math.PI)
+      );
+      
+                  
   }
 }

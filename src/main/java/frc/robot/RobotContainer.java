@@ -15,16 +15,25 @@ import edu.wpi.first.math.trajectory.TrajectoryConfig;
 import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.AutoConstants;
 import frc.robot.Constants.DriveConstants;
+import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.OIConstants;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SwerveControllerCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import java.util.List;
+
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.path.GoalEndState;
+import com.pathplanner.lib.path.PathConstraints;
+import com.pathplanner.lib.path.PathPlannerPath;
 
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
@@ -34,10 +43,13 @@ import frc.robot.subsystems.VisionSubsystem;
 import frc.robot.commands.ShooterCommands.ShootCmd;
 import frc.robot.commands.ShooterCommands.GrabCmd;
 import frc.robot.commands.IntakeCommands.IntakeGiveCmd;
+import frc.robot.commands.IntakeCommands.IntakePIDCmd;
 import frc.robot.commands.IntakeCommands.IntakeTakeCmd;
 import frc.robot.commands.ShooterCommands.WristPIDCmd;
 import frc.robot.commands.DriveCommands.SetXCmd;
 import frc.robot.commands.TurnToAngleCmd;
+import frc.robot.subsystems.VisionSubsystem;
+import edu.wpi.first.math.util.Units;
 
 /*
  * This class is where the bulk of the robot should be declared.  Since Command-based is a
@@ -105,9 +117,9 @@ public class RobotContainer {
         // Turning is controlled by the X axis of the right stick.
         new RunCommand(
             () -> m_robotDrive.drive(
-                MathUtil.applyDeadband(js2.getRawAxis(1)/4, OIConstants.kDriveDeadband),
-                MathUtil.applyDeadband(js2.getRawAxis(0)/4, OIConstants.kDriveDeadband),
-                -MathUtil.applyDeadband((js2.getRawAxis(3) - js2.getRawAxis(2))/4, OIConstants.kDriveDeadband),
+                MathUtil.applyDeadband(js2.getRawAxis(1)/1.5, OIConstants.kDriveDeadband),
+                MathUtil.applyDeadband(js2.getRawAxis(0)/1.5, OIConstants.kDriveDeadband),
+                -MathUtil.applyDeadband((js2.getRawAxis(3) - js2.getRawAxis(2))/1.5, OIConstants.kDriveDeadband),
                 
 
                 true, true),
@@ -128,32 +140,71 @@ public class RobotContainer {
    */
   private void configureButtonBindings() {
     
-    new JoystickButton(js, 1)
-        .whileTrue(new IntakeTakeCmd(intakeSubsystem));
-    
-    new JoystickButton(js, 2)
-        .whileTrue(new IntakeGiveCmd(intakeSubsystem));
-    
-    new JoystickButton(js, 3)
-        .whileTrue(new SetXCmd(m_robotDrive)); 
+
+
 
     new JoystickButton(js, 4)
         .whileTrue(new ShootCmd(shooter));
     
-    new JoystickButton(js, 5)
-        .whileTrue(new GrabCmd(shooter));
+    //----- INTAKE -----
+    new JoystickButton(js, 2)
+        .whileTrue(new IntakeGiveCmd(intakeSubsystem));
     
+    new JoystickButton(js, 1)
+        .whileTrue(new IntakeTakeCmd(intakeSubsystem)); 
+
+    new JoystickButton(js, 5)
+        .whileTrue(new IntakePIDCmd(intakeSubsystem, IntakeConstants.kGoalUp));
+    
+    new JoystickButton(js, 6)
+        .whileTrue(new IntakePIDCmd(intakeSubsystem, IntakeConstants.kGoalDown));
+    //---------------
 
 
         
     
-    new JoystickButton(js2, 1)
-        .whileTrue(new WristPIDCmd(shooter, 2000));
-    
+    new JoystickButton(js, 3)
+        .whileTrue(new WristPIDCmd(shooter, 4000));
+
 
     new JoystickButton(js2, 5)
         .whileTrue(new RunCommand(
             () -> m_robotDrive.resetRelative(), m_robotDrive));
+
+    new JoystickButton(js2, 3)
+        .whileTrue(new RunCommand(() -> m_robotDrive.setX(), m_robotDrive));
+
+    new JoystickButton(js2, 2)
+        .whileTrue(new RunCommand(() -> visionSubsystem.selectId(8), visionSubsystem));
+
+    /*SmartDashboard.putData("on-the-fly", Commands.runOnce(() -> {
+        Pose2d currPose2d = m_robotDrive.getPose();
+
+        Pose2d startPose2d = new Pose2d(currPose2d.getTranslation(), new Rotation2d());
+
+        Pose2d visionPose = visionSubsystem.getpos();//new Pose2d(new Translation2d(3.0, 0), new Rotation2d());
+
+        //double angle = startPose2d.getRotation().getDegrees();
+        Pose2d endPose2d = new Pose2d(currPose2d.getTranslation().plus(new Translation2d((visionPose.getX()-2.0), 0.0)), new Rotation2d());
+
+        //Pose2d endPose2d = new Pose2d(currPose2d.getTranslation().plus(visionPose.getTranslation()), new Rotation2d());
+        List<Translation2d> bezierPoints = PathPlannerPath.bezierFromPoses(startPose2d, endPose2d);
+        SmartDashboard.putString("start", startPose2d.toString());
+        SmartDashboard.putString("endpose", endPose2d.toString());
+        //SmartDashboard.putString("vision", visionPose.toString());
+        //SmartDashboard.putString("angle", visionPose.getRotation().toString());
+
+        PathPlannerPath path = new PathPlannerPath(
+            bezierPoints, 
+            new PathConstraints(4.0, 4.0, Units.degreesToRadians(360), Units.degreesToRadians(540)),
+            new GoalEndState(0.0, currPose2d.getRotation())
+        );
+        
+        path.preventFlipping = true;
+        //SmartDashboard.putString("path", path.toString());
+        AutoBuilder.followPath(path).schedule();
+    }));*/
+    
     
   }
   /**
